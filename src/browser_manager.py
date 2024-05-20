@@ -2,6 +2,8 @@ from RPA.Browser.Selenium import Selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+import os
 import time
 
 class BrowserManager:
@@ -9,7 +11,20 @@ class BrowserManager:
         self.browser = Selenium()
 
     def open_site(self, url):
-        self.browser.open_available_browser(url)
+        chrome_options = Options()
+        chrome_prefs = {
+            "profile.default_content_settings.popups": 0,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True,
+            "profile.content_settings.exceptions.automatic_downloads.*.setting": 1,  # Allow automatic downloads
+            "download.default_directory": os.path.join(os.path.dirname(__file__), 'downloads')
+        }
+        chrome_options.add_experimental_option("prefs", chrome_prefs)
+        #chrome_options.add_argument("--headless")
+        
+        self.browser.open_available_browser(url, options=chrome_options)
+        return self.browser
 
     def close(self):
         self.browser.close_all_browsers()

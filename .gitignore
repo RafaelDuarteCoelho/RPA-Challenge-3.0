@@ -5,6 +5,7 @@ __pycache__/
 
 #ignore images
 *src/images
+*src/scraps
 
 # Ignore IDE files
 .vscode/
