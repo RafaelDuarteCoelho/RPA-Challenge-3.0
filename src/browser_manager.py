@@ -1,10 +1,6 @@
 from RPA.Browser.Selenium import Selenium
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import os
-import time
 
 class BrowserManager:
     def __init__(self):

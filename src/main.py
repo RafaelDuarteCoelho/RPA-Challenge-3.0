@@ -18,7 +18,8 @@ def main():
 
     news_data = scraper.navigate_and_extract()
     FileManager.save_to_excel(news_data, scraper.scraps_directory, scraper.directory_name)
-    scraper.close()
+    #scraper.close()
+    browser.close()
 
 if __name__ == "__main__":
     main()
