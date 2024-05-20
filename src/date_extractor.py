@@ -3,17 +3,23 @@ from datetime import datetime, timedelta
 
 class DateExtractor:
     def parse_relative_date(self, date_text):
+        """
+        Converts relative dates like '6 days ago' to absolute dates.
+
+        Args:
+            date_text (str): The relative date string.
+        
+        Returns:
+            datetime: The corresponding absolute date.
+        """
         print(date_text)
 
-        """Convert relative dates like '6 days ago' to absolute dates."""
         today = datetime.today()
         match = re.match(r'(\d+)\s+(hour|hours|hr|hrs|day|days|week|weeks|month|months|year|years)\s+ago', date_text)
         if match:
             amount, unit = match.groups()
             amount = int(amount)
-            if unit.startswith('hour'):
-                return today - timedelta(hours=amount)
-            if unit.startswith('hr'):
+            if unit.startswith('hour') or unit.startswith('hr'):
                 return today - timedelta(hours=amount)
             elif unit.startswith('day'):
                 return today - timedelta(days=amount)
@@ -26,6 +32,15 @@ class DateExtractor:
         return None
 
     def extract_news_dates(self, news_items):
+        """
+        Extracts and converts dates from a list of news items.
+
+        Args:
+            news_items (list): List of news items containing date elements.
+        
+        Returns:
+            list: List of extracted dates in 'dd/mm/yyyy' format.
+        """
         extracted_dates = []
         for item in news_items:
             try:

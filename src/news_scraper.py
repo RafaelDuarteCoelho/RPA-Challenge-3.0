@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import time
@@ -12,12 +11,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from config import Config
 from date_extractor import DateExtractor
-
 import hashlib
-
 
 class NewsScraper:
     def __init__(self):
+        """
+        Initializes the NewsScraper class with required components and configurations.
+        """
         self.browser = Selenium()
         self.tables = Tables()
         self.work_items = WorkItems()
@@ -34,6 +34,12 @@ class NewsScraper:
         self.directory_name = ""
 
     def create_scraps_directory(self):
+        """
+        Creates a directory to store scraped data.
+
+        Returns:
+            str: Path to the created directory.
+        """
         today = datetime.today().strftime('%Y-%m-%d')
         directory_name = f"{today}_{self.search_phrase.replace(' ', '_')}"
         directory_path = os.path.join(os.path.dirname(__file__), 'scraps', directory_name)
@@ -41,6 +47,18 @@ class NewsScraper:
         return directory_path
 
     def find_element_dynamically(self, selectors):
+        """
+        Attempts to find an element on the page using a list of selectors.
+
+        Args:
+            selectors (list): List of CSS selectors to try.
+
+        Returns:
+            WebElement: The found element.
+
+        Raises:
+            Exception: If none of the selectors work.
+        """
         for selector in selectors:
             try:
                 print(f"Trying selector: {selector}")
@@ -52,6 +70,19 @@ class NewsScraper:
         raise Exception(f"None of the selectors worked: {selectors}")
 
     def find_element_dynamically_in_element(self, parent, selectors):
+        """
+        Attempts to find an element within a parent element using a list of selectors.
+
+        Args:
+            parent (WebElement): The parent element where the search will be performed.
+            selectors (list): List of CSS selectors to try.
+
+        Returns:
+            WebElement: The found element.
+
+        Raises:
+            Exception: If none of the selectors work.
+        """
         for selector in selectors:
             try:
                 element = parent.find_element(selector)
@@ -60,8 +91,10 @@ class NewsScraper:
                 continue
         raise Exception(f"None of the selectors worked within the element: {selectors}")
 
-
     def filter_by_category(self):
+        """
+        Filters news by category using the configured category.
+        """
         if self.news_category:
             category_selectors = [
                 f'css:[data-category="{self.news_category}"]', 
@@ -77,16 +110,21 @@ class NewsScraper:
             self.browser.click_element(category_element)
 
     def sort_results_by_date(self):
+        """
+        Sorts search results by date.
+        """
         time.sleep(10)
         try:
             self.browser.select_from_list_by_value('id:search-sort-option', 'date')
             print("Sorted results by date.")
         except Exception as e:
             print(f"Failed to sort results by date: {e}")
-
         time.sleep(10)
 
     def close_registration_popup(self):
+        """
+        Closes the registration popup if it appears.
+        """
         try:
             self.browser.execute_javascript("""
                 const popupCloseButton = document.querySelector('button.close-button');
@@ -99,18 +137,28 @@ class NewsScraper:
             print(f"Failed to close registration popup: {e}")
 
     def get_latest_downloaded_file(self):
+        """
+        Retrieves the most recently downloaded file from the downloads folder.
+
+        Returns:
+            str: Path to the latest downloaded file.
+        """
         files = [os.path.join(self.downloads_folder, f) for f in os.listdir(self.downloads_folder)]
         latest_file = max(files, key=os.path.getctime)
         return latest_file
 
     def save_image(self, image_url):
-        # Extração da extensão do arquivo a partir do URL, se disponível
+        """
+        Saves an image from a URL to the scraps directory.
+
+        Args:
+            image_url (str): URL of the image to download and save.
+        """
         image_extension = image_url.split('.')[-1] if '.' in image_url.split('/')[-1] else 'jpg'
         image_hash = hashlib.md5(image_url.encode('utf-8')).hexdigest()
         image_filename = f"{image_hash}.{image_extension}"
         file_path = os.path.join(self.scraps_directory, image_filename)
         
-        # JavaScript para criar o link de download
         self.browser.execute_javascript(f"""
             var link = document.createElement('a');            
             link.href = '{image_url}';            
@@ -129,9 +177,16 @@ class NewsScraper:
         except Exception as e:
             print(f"Error moving downloaded file: {e}")
 
-
     def extract_news_dates(self, news_items):
+        """
+        Extracts dates from news items and saves associated data.
 
+        Args:
+            news_items (list): List of news items to extract data from.
+
+        Returns:
+            tuple: Last date found and list of news data.
+        """
         last_date = None
         news_data = []
 
@@ -142,16 +197,14 @@ class NewsScraper:
                 title_element = item.find_element(By.CSS_SELECTOR, 'h3.gc__title')
                 title = title_element.text if title_element else "N/A"
 
-                # date and description are in the same element
                 date_description_element = item.find_element(By.CSS_SELECTOR, 'div.gc__excerpt p')
                 date_description_text = date_description_element.text.strip() if date_description_element else "N/A"
 
-                # Extract date and description
                 date_text, description = self.extract_date_and_description(date_description_text)
                 date_text = item.find_element(By.CSS_SELECTOR, 'span.screen-reader-text').text
-                date_text = date_text.replace("Published On","").strip()
-                date_text = date_text.replace("Last update","").strip()
-                print(f"DATA PORRA {date_text}")
+                date_text = date_text.replace("Published On", "").strip()
+                date_text = date_text.replace("Last update", "").strip()
+                print(f"DATA: {date_text}")
 
                 print(f"Extracted date and description: {date_text} |||| {description}")
 
@@ -167,7 +220,6 @@ class NewsScraper:
                     parsed_date = None
                     print(f"Error parsing date '{date_text}': {ve}")
 
-                # Image element
                 image_element = item.find_element(By.CSS_SELECTOR, 'div.responsive-image img')
                 image_url = image_element.get_attribute('src') if image_element else "N/A"
                 image_filename = os.path.basename(image_url) if image_url else "N/A"
@@ -195,12 +247,30 @@ class NewsScraper:
         return last_date, news_data
 
     def extract_date_and_description(self, text):
-            parts = text.split(' ... ')
-            if len(parts) >= 2:
-                return parts[0].strip(), ' '.join(parts[1:]).strip()
-            return text, ""
+        """
+        Extracts date and description from a given text.
+
+        Args:
+            text (str): Text containing date and description.
+
+        Returns:
+            tuple: Extracted date and description.
+        """
+        parts = text.split(' ... ')
+        if len(parts) >= 2:
+            return parts[0].strip(), ' '.join(parts[1:]).strip()
+        return text, ""
 
     def convert_relative_date(self, relative_date_str):
+        """
+        Converts a relative date string to an absolute date.
+
+        Args:
+            relative_date_str (str): Relative date string (e.g., '5 days ago').
+
+        Returns:
+            str: Absolute date in 'dd MMMM yyyy' format.
+        """
         now = datetime.now()
         if 'days ago' in relative_date_str:
             days = int(relative_date_str.split()[0])
@@ -214,6 +284,12 @@ class NewsScraper:
         return relative_date_str
 
     def navigate_and_extract(self):
+        """
+        Navigates through the website, extracts news data, and handles pagination.
+
+        Returns:
+            list: All extracted news data.
+        """
         last_date = None
         all_news_data = []
 

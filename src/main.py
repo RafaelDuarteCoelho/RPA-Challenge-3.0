@@ -9,16 +9,13 @@ def main():
     browser = BrowserManager()
 
     scraper.browser = browser.open_site('https://www.aljazeera.com/')
-    search_news(scraper.browser, scraper.search_phrase)
-
     #scraper.open_site('https://www.bbc.com/')
     #scraper.open_site('https://www.nytimes.com/')
-
-    #scraper.search_news()
+    search_news(scraper.browser, scraper.search_phrase)
 
     news_data = scraper.navigate_and_extract()
-    FileManager.save_to_excel(news_data, scraper.scraps_directory, scraper.directory_name)
-    #scraper.close()
+    FileManager.save_to_excel(news_data, scraper.scraps_directory)
+
     browser.close()
 
 if __name__ == "__main__":

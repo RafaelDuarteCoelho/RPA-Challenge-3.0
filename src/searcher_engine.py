@@ -1,21 +1,16 @@
-import json
-import os
-import re
 import time
-import shutil
-from datetime import datetime, timedelta
-from RPA.Browser.Selenium import Selenium
-from RPA.Tables import Tables
-from RPA.Robocorp.WorkItems import WorkItems
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from openpyxl import Workbook
-from config import Config
-from date_extractor import DateExtractor
-
 
 def search_news(browser, search_phrase):
+    """
+    Searches for news on a website using the given search phrase.
+
+    Args:
+        browser (Selenium): The Selenium browser instance used for automation.
+        search_phrase (str): The search phrase to input into the search field.
+    
+    Raises:
+        Exception: If the search button or search field cannot be found or interacted with.
+    """
     time.sleep(10)
     
     search_field = dynamic_searchbar(browser)
@@ -76,6 +71,7 @@ def search_news(browser, search_phrase):
             return {logs: logs, clicked: false};
         """)
 
+        # Log all messages generated during the JavaScript execution
         for log in button_found['logs']:
             print(log)
 
@@ -97,6 +93,15 @@ def search_news(browser, search_phrase):
 
 
 def dynamic_searchbar(browser):
+    """
+    Dynamically finds the search bar on the web page.
+
+    Args:
+        browser (Selenium): The Selenium browser instance used for automation.
+    
+    Returns:
+        WebElement: The search field element if found, otherwise None.
+    """
     search_field = browser.execute_javascript("""
     function findSearchField() {
         const inputs = document.querySelectorAll('input');
