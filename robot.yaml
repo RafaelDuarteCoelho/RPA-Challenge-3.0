@@ -1,14 +1,6 @@
 tasks:
   ExtractAndSaveNews:
-    actions:
-      - RunKeywords:
-          keywords:
-            - Setup Browser
-            - Open the news website
-            - Search for news articles
-            - Extract news data
-            - Save data to Excel
-            - Download images
+    command: python main.py
 
 #condaConfigFile: conda.yaml
 artifactsDir: artifacts/
