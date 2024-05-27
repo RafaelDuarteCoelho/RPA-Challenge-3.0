@@ -1,8 +1,10 @@
 tasks:
   ExtractAndSaveNews:
-    command: python main.py
+    command:
+      - python
+      - main.py
 
-#condaConfigFile: conda.yaml
+condaConfigFile: conda.yaml
 artifactsDir: artifacts/
 variables:
   search_phrase: ${RC_WORK_ITEM:search_phrase}
